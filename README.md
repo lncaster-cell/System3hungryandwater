@@ -11,7 +11,7 @@
 - `nwscript/camp_system.nss` — состояние лагеря и понижение активности.
 - `nwscript/travel_system.nss` — маршруты между городами по timestamp-модели.
 - `nwscript/encounter_system.nss` — детерминированные встречи в окнах времени.
-- `nwscript/trade_system.nss` — integer-only торговля с атомарной покупкой строки заказа.
+- `nwscript/trade_system.nss` — integer-only торговля с атомарной покупкой строки заказа, поддержкой лагерного склада для крупногабаритных товаров и подготовкой данных для GUI.
 - `nwscript/ambientlive2_bridge.nss` — мост синхронизации состояния для совместимости с ambientlive2 (schema/revision, экспорт/импорт партии, городов и торговых позиций).
 
 ## Принципы производительности
