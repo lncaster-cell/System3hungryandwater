@@ -290,8 +290,8 @@ int ComputeIllegalListingPrice(object oMerchant, int nItemId)
 int ComputeGuardInterventionScoreMilli(int nCityId, int nThreatMilli)
 {
     int nScore = nThreatMilli;
-    nScore = nScore + GetCityGuardResponseMilli(nCityId);
-    nScore = nScore + (GetCityGuardSearchMilli(nCityId) / 2);
-    nScore = nScore + (GetCityGuardForceMilli(nCityId) / 2);
+    nScore = SaturatingAddInt(nScore, GetCityGuardResponseMilli(nCityId));
+    nScore = SaturatingAddInt(nScore, (GetCityGuardSearchMilli(nCityId) / 2));
+    nScore = SaturatingAddInt(nScore, (GetCityGuardForceMilli(nCityId) / 2));
     return ClampLawMilli(nScore);
 }
