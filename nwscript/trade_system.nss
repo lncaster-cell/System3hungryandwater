@@ -2,6 +2,7 @@
 // Integer-only atomic buy operation.
 
 #include "system_core"
+#include "city_law_system"
 
 void SetBalance(object oActor, int nAmount)
 {
@@ -158,6 +159,57 @@ void SetTradeGuiTab(object oPlayer, int nTab)
     }
 
     SetLocalInt(oPlayer, KEY_TRADE_GUI_TAB, nSafeTab);
+}
+
+
+void SetIllegalMerchantListing(object oMerchant, int nItemId, int nBasePrice, int nStock, int nItemType, int nMarkupMilli)
+{
+    SetMerchantListing(oMerchant, nItemId, nBasePrice, nStock);
+    RegisterIllegalItem(nItemId, nItemType, nMarkupMilli);
+}
+
+int GetIllegalListingPrice(object oMerchant, int nItemId)
+{
+    return ComputeIllegalListingPrice(oMerchant, nItemId);
+}
+
+int BuyIllegalLine(object oPlayer, object oMerchant, int nCityId, int nItemId, int nQty, int nStorageMode)
+{
+    if (nCityId <= 0 || nItemId < 0 || nQty <= 0 || !IsIllegalItem(nItemId))
+    {
+        return -1;
+    }
+
+    string sStockKey = ListStockKey(nItemId);
+    int nStock = GetLocalInt(oMerchant, sStockKey);
+    if (nStock < nQty)
+    {
+        return -1;
+    }
+
+    int nPrice = GetIllegalListingPrice(oMerchant, nItemId);
+    if (nPrice <= 0 || nPrice > (2147483647 / nQty))
+    {
+        return -1;
+    }
+
+    int nTotal = nPrice * nQty;
+    int nPlayerBalance = GetBalance(oPlayer);
+    if (nPlayerBalance < nTotal)
+    {
+        return -1;
+    }
+
+    SetBalance(oPlayer, nPlayerBalance - nTotal);
+    SetBalance(oMerchant, SaturatingAddInt(GetBalance(oMerchant), nTotal));
+    SetLocalInt(oMerchant, sStockKey, nStock - nQty);
+    AddTradeInventory(oPlayer, nItemId, nQty, ResolveTradeStorageMode(oPlayer, nStorageMode));
+
+    // Lightweight law context marker for downstream scripts (guards/dialogs/logging).
+    SetLocalInt(oPlayer, KEY_CITY_ILLEGAL_LAST_ITEM_ID, nItemId);
+    SetLocalInt(oPlayer, KEY_CITY_ILLEGAL_LAST_ITEM_QTY, nQty);
+    SetLocalInt(oPlayer, KEY_CITY_ILLEGAL_LAST_CITY_ID, nCityId);
+    return nTotal;
 }
 
 // Returns total price, or -1 on validation failure.
