@@ -52,12 +52,15 @@ int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliP
 
     object oModule = GetModule();
     int nDurationMs = ComputeTravelDurationMs(oModule, nFromCityId, nToCityId, nSpeedMilliPerMin);
+    int nArrivalMs = nNowMs > (2147483647 - nDurationMs)
+        ? 2147483647
+        : nNowMs + nDurationMs;
 
     SetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE, TRUE);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_FROM_CITY, nFromCityId);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_TO_CITY, nToCityId);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_START_MS, nNowMs);
-    SetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS, nNowMs + nDurationMs);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS, nArrivalMs);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_SEED, nSeed);
     return TRUE;
 }

@@ -58,6 +58,13 @@ int ShouldTriggerEncounter(object oPartyLeader, int nNowMs)
     int nSeed = GetLocalInt(oPartyLeader, KEY_TRAVEL_SEED);
     int nRoute = GetTravelRouteFingerprint(oPartyLeader);
     int nBucket = nNowMs / ENCOUNTER_WINDOW_MS;
+
+    int nLastEncounterMs = GetLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_MS);
+    if (nLastEncounterMs > 0 && (nLastEncounterMs / ENCOUNTER_WINDOW_MS) == nBucket)
+    {
+        return FALSE;
+    }
+
     int nRoll = HashRoll(nSeed, nRoute, nBucket);
 
     if (nRoll >= ENCOUNTER_CHANCE_MILLI)

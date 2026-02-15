@@ -42,6 +42,11 @@ int BuyOneLine(object oPlayer, object oMerchant, int nItemId, int nQty)
         return -1;
     }
 
+    if (nPrice > (2147483647 / nQty))
+    {
+        return -1;
+    }
+
     int nTotal = nPrice * nQty;
     int nPlayerBalance = GetBalance(oPlayer);
     if (nPlayerBalance < nTotal)
