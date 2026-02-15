@@ -54,13 +54,15 @@ void AddTradeInventory(object oPlayer, int nItemId, int nQty, int nStorageMode)
         sInventoryKey = CampInventoryKey(nItemId);
     }
 
-    SetLocalInt(oPlayer, sInventoryKey, GetLocalInt(oPlayer, sInventoryKey) + nQty);
+    int nUpdatedQty = SaturatingAddInt(GetLocalInt(oPlayer, sInventoryKey), nQty);
+    SetLocalInt(oPlayer, sInventoryKey, nUpdatedQty);
 }
 
 void AddCargoLedger(object oPlayer, int nItemId, int nTons)
 {
     string sLedgerKey = CargoLedgerTonsKey(nItemId);
-    SetLocalInt(oPlayer, sLedgerKey, GetLocalInt(oPlayer, sLedgerKey) + nTons);
+    int nUpdatedTons = SaturatingAddInt(GetLocalInt(oPlayer, sLedgerKey), nTons);
+    SetLocalInt(oPlayer, sLedgerKey, nUpdatedTons);
 }
 
 void BuildMerchantTradeGui(object oPlayer, object oMerchant, int nStorageMode, int nItemIdList[], int nCount)
@@ -190,7 +192,7 @@ int BuyOneLine(object oPlayer, object oMerchant, int nItemId, int nQty, int nSto
 
     // Atomic commit for one order line.
     SetBalance(oPlayer, nPlayerBalance - nTotal);
-    SetBalance(oMerchant, GetBalance(oMerchant) + nTotal);
+    SetBalance(oMerchant, SaturatingAddInt(GetBalance(oMerchant), nTotal));
     SetLocalInt(oMerchant, sStockKey, nStock - nQty);
 
     AddTradeInventory(oPlayer, nItemId, nQty, ResolveTradeStorageMode(oPlayer, nStorageMode));
@@ -237,7 +239,7 @@ int BuyResourceLineTons(object oPlayer, object oMerchant, int nItemId, int nLots
     }
 
     SetBalance(oPlayer, nPlayerBalance - nTotal);
-    SetBalance(oMerchant, GetBalance(oMerchant) + nTotal);
+    SetBalance(oMerchant, SaturatingAddInt(GetBalance(oMerchant), nTotal));
     SetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId), nStockTons - nRequestedTons);
 
     AddCargoLedger(oPlayer, nItemId, nRequestedTons);
