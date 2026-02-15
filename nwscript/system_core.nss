@@ -11,6 +11,8 @@ const string KEY_TRAVEL_TO_CITY = "TRAVEL_TO_CITY";
 const string KEY_TRAVEL_START_MS = "TRAVEL_START_MS";
 const string KEY_TRAVEL_ARRIVAL_MS = "TRAVEL_ARRIVAL_MS";
 const string KEY_TRAVEL_SEED = "TRAVEL_SEED";
+const int INT_MAX_VALUE = 2147483647;
+const int INT_MIN_VALUE = -2147483647 - 1;
 
 const string KEY_ENCOUNTER_LAST_MS = "ENCOUNTER_LAST_MS";
 const string KEY_ENCOUNTER_SEVERITY_MILLI = "ENCOUNTER_SEVERITY_MILLI";
@@ -37,7 +39,17 @@ const int TRADE_GUI_TAB_CITY = 1;
 
 int AbsInt(int nValue)
 {
+    if (nValue == INT_MIN_VALUE)
+    {
+        return INT_MAX_VALUE;
+    }
+
     return nValue < 0 ? -nValue : nValue;
+}
+
+string CityExistsKey(int nCityId)
+{
+    return "CITY_EXISTS_" + IntToString(nCityId);
 }
 
 int ClampMinInt(int nValue, int nMin)

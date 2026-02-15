@@ -15,6 +15,7 @@ void RegisterCity(int nCityId, int nXMilli, int nYMilli)
     object oModule = GetModule();
     SetLocalInt(oModule, CityXKey(nCityId), nXMilli);
     SetLocalInt(oModule, CityYKey(nCityId), nYMilli);
+    SetLocalInt(oModule, CityExistsKey(nCityId), TRUE);
 }
 
 void SetPartyCity(object oPartyLeader, int nCityId)
@@ -27,12 +28,29 @@ void SetPartyCity(object oPartyLeader, int nCityId)
 
 int ComputeTravelDurationMs(object oModule, int nFromCityId, int nToCityId, int nSpeedMilliPerMin)
 {
+    if (!GetLocalInt(oModule, CityExistsKey(nFromCityId)) || !GetLocalInt(oModule, CityExistsKey(nToCityId)))
+    {
+        return -1;
+    }
+
     int nFromX = GetLocalInt(oModule, CityXKey(nFromCityId));
     int nFromY = GetLocalInt(oModule, CityYKey(nFromCityId));
     int nToX = GetLocalInt(oModule, CityXKey(nToCityId));
     int nToY = GetLocalInt(oModule, CityYKey(nToCityId));
 
-    int nDistance = AbsInt(nToX - nFromX) + AbsInt(nToY - nFromY);
+    int nDistanceX = AbsInt(nToX - nFromX);
+    int nDistanceY = AbsInt(nToY - nFromY);
+    if (nDistanceX > (INT_MAX_VALUE - nDistanceY))
+    {
+        return -1;
+    }
+
+    int nDistance = nDistanceX + nDistanceY;
+    if (nDistance > (INT_MAX_VALUE / 60000))
+    {
+        return -1;
+    }
+
     int nDurationMs = (nDistance * 60000) / nSpeedMilliPerMin;
     return ClampMinInt(nDurationMs, 1);
 }
@@ -40,7 +58,10 @@ int ComputeTravelDurationMs(object oModule, int nFromCityId, int nToCityId, int 
 int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliPerMin, int nSeed)
 {
     int nFromCityId = GetLocalInt(oPartyLeader, KEY_PARTY_CITY_ID);
-    if (nFromCityId <= 0 || nToCityId <= 0 || nFromCityId == nToCityId)
+    if (GetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE)
+        || nFromCityId <= 0
+        || nToCityId <= 0
+        || nFromCityId == nToCityId)
     {
         return FALSE;
     }
@@ -52,8 +73,12 @@ int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliP
 
     object oModule = GetModule();
     int nDurationMs = ComputeTravelDurationMs(oModule, nFromCityId, nToCityId, nSpeedMilliPerMin);
-    int nArrivalMs = nNowMs > (2147483647 - nDurationMs)
-        ? 2147483647
+    if (nDurationMs <= 0)
+    {
+        return FALSE;
+    }
+    int nArrivalMs = nNowMs > (INT_MAX_VALUE - nDurationMs)
+        ? INT_MAX_VALUE
         : nNowMs + nDurationMs;
 
     SetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE, TRUE);
