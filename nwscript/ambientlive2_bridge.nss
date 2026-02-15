@@ -7,7 +7,7 @@ const string AL2_SCHEMA_VERSION = "1";
 
 string AL2Key(string sField)
 {
-    return "AL2_SYNC_" + sField;
+    return AL2SyncFieldKey(sField);
 }
 
 int AL2CanImportFrom(object oSyncBus, int nCurrentRevision)
@@ -119,6 +119,32 @@ void AL2ImportCity(object oModule, object oSyncBus, int nCityId)
     SetLocalInt(oModule, CityYKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityYKey(nCityId))));
 }
 
+void AL2ExportCityTradeParams(object oModule, object oSyncBus, int nCityId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nCityId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oSyncBus, AL2Key(CityDemandMilliKey(nCityId)), GetLocalInt(oModule, CityDemandMilliKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CitySupplyMilliKey(nCityId)), GetLocalInt(oModule, CitySupplyMilliKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CityProsperityMilliKey(nCityId)), GetLocalInt(oModule, CityProsperityMilliKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CityTrafficMilliKey(nCityId)), GetLocalInt(oModule, CityTrafficMilliKey(nCityId)));
+}
+
+void AL2ImportCityTradeParams(object oModule, object oSyncBus, int nCityId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nCityId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oModule, CityDemandMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityDemandMilliKey(nCityId))));
+    SetLocalInt(oModule, CitySupplyMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CitySupplyMilliKey(nCityId))));
+    SetLocalInt(oModule, CityProsperityMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityProsperityMilliKey(nCityId))));
+    SetLocalInt(oModule, CityTrafficMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityTrafficMilliKey(nCityId))));
+}
+
 void AL2ExportMerchantItem(object oMerchant, object oSyncBus, int nItemId)
 {
     if (!GetIsObjectValid(oMerchant) || !GetIsObjectValid(oSyncBus) || nItemId < 0)
@@ -128,6 +154,9 @@ void AL2ExportMerchantItem(object oMerchant, object oSyncBus, int nItemId)
 
     SetLocalInt(oSyncBus, AL2Key(ListPriceKey(nItemId)), GetLocalInt(oMerchant, ListPriceKey(nItemId)));
     SetLocalInt(oSyncBus, AL2Key(ListStockKey(nItemId)), GetLocalInt(oMerchant, ListStockKey(nItemId)));
+    SetLocalInt(oSyncBus, AL2Key(ListWholesalePriceKey(nItemId)), GetLocalInt(oMerchant, ListWholesalePriceKey(nItemId)));
+    SetLocalInt(oSyncBus, AL2Key(ListWholesaleStockTonsKey(nItemId)), GetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId)));
+    SetLocalInt(oSyncBus, AL2Key(ListWholesaleLotTonsKey(nItemId)), GetLocalInt(oMerchant, ListWholesaleLotTonsKey(nItemId)));
 }
 
 void AL2ImportMerchantItem(object oMerchant, object oSyncBus, int nItemId)
@@ -139,4 +168,7 @@ void AL2ImportMerchantItem(object oMerchant, object oSyncBus, int nItemId)
 
     SetLocalInt(oMerchant, ListPriceKey(nItemId), GetLocalInt(oSyncBus, AL2Key(ListPriceKey(nItemId))));
     SetLocalInt(oMerchant, ListStockKey(nItemId), GetLocalInt(oSyncBus, AL2Key(ListStockKey(nItemId))));
+    SetLocalInt(oMerchant, ListWholesalePriceKey(nItemId), GetLocalInt(oSyncBus, AL2Key(ListWholesalePriceKey(nItemId))));
+    SetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId), GetLocalInt(oSyncBus, AL2Key(ListWholesaleStockTonsKey(nItemId))));
+    SetLocalInt(oMerchant, ListWholesaleLotTonsKey(nItemId), GetLocalInt(oSyncBus, AL2Key(ListWholesaleLotTonsKey(nItemId))));
 }

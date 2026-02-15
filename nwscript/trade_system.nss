@@ -24,6 +24,18 @@ void SetMerchantListing(object oMerchant, int nItemId, int nBasePrice, int nStoc
     SetLocalInt(oMerchant, ListStockKey(nItemId), ClampMinInt(nStock, 0));
 }
 
+void SetResourceMerchantListing(object oMerchant, int nItemId, int nPricePerTon, int nStockTons, int nLotTons)
+{
+    if (nItemId < 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oMerchant, ListWholesalePriceKey(nItemId), ClampMinInt(nPricePerTon, 1));
+    SetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId), ClampMinInt(nStockTons, 0));
+    SetLocalInt(oMerchant, ListWholesaleLotTonsKey(nItemId), ClampMinInt(nLotTons, 1));
+}
+
 int ResolveTradeStorageMode(object oPlayer, int nRequestedMode)
 {
     if (nRequestedMode == TRADE_STORAGE_CAMP && GetLocalInt(oPlayer, KEY_CAMP_STATE))
@@ -45,6 +57,12 @@ void AddTradeInventory(object oPlayer, int nItemId, int nQty, int nStorageMode)
     SetLocalInt(oPlayer, sInventoryKey, GetLocalInt(oPlayer, sInventoryKey) + nQty);
 }
 
+void AddCargoLedger(object oPlayer, int nItemId, int nTons)
+{
+    string sLedgerKey = CargoLedgerTonsKey(nItemId);
+    SetLocalInt(oPlayer, sLedgerKey, GetLocalInt(oPlayer, sLedgerKey) + nTons);
+}
+
 void BuildMerchantTradeGui(object oPlayer, object oMerchant, int nStorageMode, int nItemIdList[], int nCount)
 {
     int nResolvedStorage = ResolveTradeStorageMode(oPlayer, nStorageMode);
@@ -53,6 +71,8 @@ void BuildMerchantTradeGui(object oPlayer, object oMerchant, int nStorageMode, i
     string sHeader = "Торговля | Склад: " + sStorageLabel + " | Баланс: " + IntToString(GetBalance(oPlayer));
     SetLocalString(oPlayer, KEY_TRADE_GUI_HEADER, sHeader);
 
+    SetLocalInt(oPlayer, KEY_RESOURCE_TRADE_MODE, TRADE_MODE_STANDARD);
+    SetLocalInt(oPlayer, KEY_TRADE_GUI_TAB, TRADE_GUI_TAB_GOODS);
     SetLocalInt(oPlayer, KEY_TRADE_GUI_LINES, ClampMinInt(nCount, 0));
 
     int i = 0;
@@ -68,6 +88,74 @@ void BuildMerchantTradeGui(object oPlayer, object oMerchant, int nStorageMode, i
         SetLocalString(oPlayer, TradeGuiLineKey(i), sLine);
         i = i + 1;
     }
+}
+
+void BuildResourceTradeGui(object oPlayer, object oMerchant, int nItemIdList[], int nCount)
+{
+    string sHeader = "Оптовая торговля ресурсами | Баланс: " + IntToString(GetBalance(oPlayer));
+    SetLocalString(oPlayer, KEY_TRADE_GUI_HEADER, sHeader);
+
+    SetLocalInt(oPlayer, KEY_RESOURCE_TRADE_MODE, TRADE_MODE_RESOURCE);
+    SetLocalInt(oPlayer, KEY_TRADE_GUI_TAB, TRADE_GUI_TAB_GOODS);
+    SetLocalInt(oPlayer, KEY_TRADE_GUI_LINES, ClampMinInt(nCount, 0));
+
+    int i = 0;
+    while (i < nCount)
+    {
+        int nItemId = nItemIdList[i];
+        int nPrice = GetLocalInt(oMerchant, ListWholesalePriceKey(nItemId));
+        int nStockTons = GetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId));
+        int nLotTons = GetLocalInt(oMerchant, ListWholesaleLotTonsKey(nItemId));
+
+        string sLine = "ID:" + IntToString(nItemId)
+            + " | Цена/т:" + IntToString(nPrice)
+            + " | Остаток(т):" + IntToString(nStockTons)
+            + " | Лот(т):" + IntToString(nLotTons);
+        SetLocalString(oPlayer, TradeGuiLineKey(i), sLine);
+        i = i + 1;
+    }
+}
+
+void BuildResourceCityTabFromAmbientLive2(object oPlayer, object oSyncBus, int nCityIdList[], int nCount)
+{
+    string sHeader = "Параметры городов (ambientlive2)";
+    SetLocalString(oPlayer, KEY_TRADE_CITY_HEADER, sHeader);
+    SetLocalInt(oPlayer, KEY_TRADE_CITY_LINES, ClampMinInt(nCount, 0));
+
+    int i = 0;
+    while (i < nCount)
+    {
+        int nCityId = nCityIdList[i];
+        int nDemand = GetLocalInt(oSyncBus, AL2SyncFieldKey(CityDemandMilliKey(nCityId)));
+        int nSupply = GetLocalInt(oSyncBus, AL2SyncFieldKey(CitySupplyMilliKey(nCityId)));
+        int nProsperity = GetLocalInt(oSyncBus, AL2SyncFieldKey(CityProsperityMilliKey(nCityId)));
+        int nTraffic = GetLocalInt(oSyncBus, AL2SyncFieldKey(CityTrafficMilliKey(nCityId)));
+
+        string sLine = "City:" + IntToString(nCityId)
+            + " | Спрос:" + IntToString(nDemand)
+            + " | Предлож:" + IntToString(nSupply)
+            + " | Достаток:" + IntToString(nProsperity)
+            + " | Трафик:" + IntToString(nTraffic);
+        SetLocalString(oPlayer, TradeGuiCityLineKey(i), sLine);
+        i = i + 1;
+    }
+}
+
+void OpenResourceTradeFromDialog(object oPlayer, object oMerchant, object oSyncBus, int nItemIdList[], int nItemCount, int nCityIdList[], int nCityCount)
+{
+    BuildResourceTradeGui(oPlayer, oMerchant, nItemIdList, nItemCount);
+    BuildResourceCityTabFromAmbientLive2(oPlayer, oSyncBus, nCityIdList, nCityCount);
+}
+
+void SetTradeGuiTab(object oPlayer, int nTab)
+{
+    int nSafeTab = nTab;
+    if (nTab != TRADE_GUI_TAB_CITY)
+    {
+        nSafeTab = TRADE_GUI_TAB_GOODS;
+    }
+
+    SetLocalInt(oPlayer, KEY_TRADE_GUI_TAB, nSafeTab);
 }
 
 // Returns total price, or -1 on validation failure.
@@ -106,5 +194,52 @@ int BuyOneLine(object oPlayer, object oMerchant, int nItemId, int nQty, int nSto
     SetLocalInt(oMerchant, sStockKey, nStock - nQty);
 
     AddTradeInventory(oPlayer, nItemId, nQty, ResolveTradeStorageMode(oPlayer, nStorageMode));
+    return nTotal;
+}
+
+// Returns total price, or -1 on validation failure.
+int BuyResourceLineTons(object oPlayer, object oMerchant, int nItemId, int nLots)
+{
+    if (nItemId < 0 || nLots <= 0)
+    {
+        return -1;
+    }
+
+    int nPricePerTon = GetLocalInt(oMerchant, ListWholesalePriceKey(nItemId));
+    int nStockTons = GetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId));
+    int nLotTons = GetLocalInt(oMerchant, ListWholesaleLotTonsKey(nItemId));
+    if (nPricePerTon <= 0 || nLotTons <= 0)
+    {
+        return -1;
+    }
+
+    if (nLotTons > (2147483647 / nLots))
+    {
+        return -1;
+    }
+
+    int nRequestedTons = nLotTons * nLots;
+    if (nStockTons < nRequestedTons)
+    {
+        return -1;
+    }
+
+    if (nPricePerTon > (2147483647 / nRequestedTons))
+    {
+        return -1;
+    }
+
+    int nTotal = nPricePerTon * nRequestedTons;
+    int nPlayerBalance = GetBalance(oPlayer);
+    if (nPlayerBalance < nTotal)
+    {
+        return -1;
+    }
+
+    SetBalance(oPlayer, nPlayerBalance - nTotal);
+    SetBalance(oMerchant, GetBalance(oMerchant) + nTotal);
+    SetLocalInt(oMerchant, ListWholesaleStockTonsKey(nItemId), nStockTons - nRequestedTons);
+
+    AddCargoLedger(oPlayer, nItemId, nRequestedTons);
     return nTotal;
 }
