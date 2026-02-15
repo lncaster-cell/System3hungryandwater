@@ -39,6 +39,9 @@ const string KEY_CITY_SUPPLY_DELTA_MILLI = "CITY_SUPPLY_DELTA_MILLI";
 const string KEY_CITY_PROSPERITY_DELTA_MILLI = "CITY_PROSPERITY_DELTA_MILLI";
 const string KEY_CITY_TRAFFIC_DELTA_MILLI = "CITY_TRAFFIC_DELTA_MILLI";
 const string KEY_CITY_RACIAL_PRESSURE_MILLI = "CITY_RACIAL_PRESSURE_MILLI";
+const string KEY_CITY_ILLEGAL_LAST_ITEM_ID = "CITY_ILLEGAL_LAST_ITEM_ID";
+const string KEY_CITY_ILLEGAL_LAST_ITEM_QTY = "CITY_ILLEGAL_LAST_ITEM_QTY";
+const string KEY_CITY_ILLEGAL_LAST_CITY_ID = "CITY_ILLEGAL_LAST_CITY_ID";
 
 const int TRADE_STORAGE_PERSONAL = 0;
 const int TRADE_STORAGE_CAMP = 1;
@@ -257,4 +260,19 @@ string CargoLedgerTonsKey(int nItemId)
 string AL2SyncFieldKey(string sField)
 {
     return "AL2_SYNC_" + sField;
+}
+
+string IllegalItemFlagKey(int nItemId)
+{
+    return "ILLEGAL_ITEM_FLAG_" + IntToString(nItemId);
+}
+
+string IllegalItemTypeKey(int nItemId)
+{
+    return "ILLEGAL_ITEM_TYPE_" + IntToString(nItemId);
+}
+
+string IllegalItemMarkupMilliKey(int nItemId)
+{
+    return "ILLEGAL_ITEM_MARKUP_MILLI_" + IntToString(nItemId);
 }

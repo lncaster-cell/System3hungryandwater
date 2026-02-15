@@ -6,6 +6,12 @@
 const int LAW_MILLI_MIN = 0;
 const int LAW_MILLI_MAX = 1000;
 
+const int ILLEGAL_ITEM_TYPE_GENERIC = 0;
+const int ILLEGAL_ITEM_TYPE_DRUG = 1;
+const int ILLEGAL_ITEM_TYPE_SLAVE = 2;
+const int ILLEGAL_ITEM_TYPE_RELIC = 3;
+
+
 int ClampLawMilli(int nValue)
 {
     if (nValue < LAW_MILLI_MIN)
@@ -207,6 +213,78 @@ void ApplyCityLawContext(object oTarget, int nCityId)
     SetLocalInt(oTarget, KEY_CITY_PROSPERITY_DELTA_MILLI, GetCityProsperityDeltaMilli(nCityId));
     SetLocalInt(oTarget, KEY_CITY_TRAFFIC_DELTA_MILLI, GetCityTrafficDeltaMilli(nCityId));
     SetLocalInt(oTarget, KEY_CITY_RACIAL_PRESSURE_MILLI, GetCityRacialPressureMilli(nCityId));
+}
+
+
+void RegisterIllegalItem(int nItemId, int nItemType, int nMarkupMilli)
+{
+    if (nItemId < 0)
+    {
+        return;
+    }
+
+    object oModule = GetModule();
+    SetLocalInt(oModule, IllegalItemFlagKey(nItemId), TRUE);
+    SetLocalInt(oModule, IllegalItemTypeKey(nItemId), ClampMinInt(nItemType, 0));
+    SetLocalInt(oModule, IllegalItemMarkupMilliKey(nItemId), ClampMinInt(nMarkupMilli, 1000));
+}
+
+int IsIllegalItem(int nItemId)
+{
+    if (nItemId < 0)
+    {
+        return FALSE;
+    }
+
+    return GetLocalInt(GetModule(), IllegalItemFlagKey(nItemId));
+}
+
+int GetIllegalItemType(int nItemId)
+{
+    if (nItemId < 0)
+    {
+        return 0;
+    }
+
+    return GetLocalInt(GetModule(), IllegalItemTypeKey(nItemId));
+}
+
+int GetIllegalItemMarkupMilli(int nItemId)
+{
+    if (nItemId < 0)
+    {
+        return 1000;
+    }
+
+    int nMarkupMilli = GetLocalInt(GetModule(), IllegalItemMarkupMilliKey(nItemId));
+    if (nMarkupMilli < 1000)
+    {
+        return 1000;
+    }
+
+    return nMarkupMilli;
+}
+
+int ComputeIllegalListingPrice(object oMerchant, int nItemId)
+{
+    if (!IsIllegalItem(nItemId))
+    {
+        return 0;
+    }
+
+    int nBasePrice = GetLocalInt(oMerchant, ListPriceKey(nItemId));
+    if (nBasePrice <= 0)
+    {
+        return 0;
+    }
+
+    int nMarkupMilli = GetIllegalItemMarkupMilli(nItemId);
+    if (nBasePrice > (2147483647 / nMarkupMilli))
+    {
+        return 2147483647 / 1000;
+    }
+
+    return ClampMinInt((nBasePrice * nMarkupMilli) / 1000, 1);
 }
 
 int ComputeGuardInterventionScoreMilli(int nCityId, int nThreatMilli)
