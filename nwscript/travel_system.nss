@@ -1,33 +1,46 @@
 // travel_system.nss
 // Timestamp-based travel without background ticks.
 
+#include "system_core"
+
 const int SPEED_DEFAULT_MILLI_UNITS_PER_MIN = 180000;
 
-int AbsInt(int nValue)
-{
-    return nValue < 0 ? -nValue : nValue;
-}
-
-// City data is stored on module object:
-// CITY_X_<id>, CITY_Y_<id>
 void RegisterCity(int nCityId, int nXMilli, int nYMilli)
 {
+    if (nCityId <= 0)
+    {
+        return;
+    }
+
     object oModule = GetModule();
-    SetLocalInt(oModule, "CITY_X_" + IntToString(nCityId), nXMilli);
-    SetLocalInt(oModule, "CITY_Y_" + IntToString(nCityId), nYMilli);
+    SetLocalInt(oModule, CityXKey(nCityId), nXMilli);
+    SetLocalInt(oModule, CityYKey(nCityId), nYMilli);
 }
 
 void SetPartyCity(object oPartyLeader, int nCityId)
 {
-    SetLocalInt(oPartyLeader, "PARTY_CITY_ID", nCityId);
+    if (nCityId > 0)
+    {
+        SetLocalInt(oPartyLeader, KEY_PARTY_CITY_ID, nCityId);
+    }
+}
+
+int ComputeTravelDurationMs(object oModule, int nFromCityId, int nToCityId, int nSpeedMilliPerMin)
+{
+    int nFromX = GetLocalInt(oModule, CityXKey(nFromCityId));
+    int nFromY = GetLocalInt(oModule, CityYKey(nFromCityId));
+    int nToX = GetLocalInt(oModule, CityXKey(nToCityId));
+    int nToY = GetLocalInt(oModule, CityYKey(nToCityId));
+
+    int nDistance = AbsInt(nToX - nFromX) + AbsInt(nToY - nFromY);
+    int nDurationMs = (nDistance * 60000) / nSpeedMilliPerMin;
+    return ClampMinInt(nDurationMs, 1);
 }
 
 int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliPerMin, int nSeed)
 {
-    object oModule = GetModule();
-
-    int nFromCityId = GetLocalInt(oPartyLeader, "PARTY_CITY_ID");
-    if (nFromCityId <= 0 || nFromCityId == nToCityId)
+    int nFromCityId = GetLocalInt(oPartyLeader, KEY_PARTY_CITY_ID);
+    if (nFromCityId <= 0 || nToCityId <= 0 || nFromCityId == nToCityId)
     {
         return FALSE;
     }
@@ -37,42 +50,37 @@ int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliP
         nSpeedMilliPerMin = SPEED_DEFAULT_MILLI_UNITS_PER_MIN;
     }
 
-    int nFromX = GetLocalInt(oModule, "CITY_X_" + IntToString(nFromCityId));
-    int nFromY = GetLocalInt(oModule, "CITY_Y_" + IntToString(nFromCityId));
-    int nToX = GetLocalInt(oModule, "CITY_X_" + IntToString(nToCityId));
-    int nToY = GetLocalInt(oModule, "CITY_Y_" + IntToString(nToCityId));
+    object oModule = GetModule();
+    int nDurationMs = ComputeTravelDurationMs(oModule, nFromCityId, nToCityId, nSpeedMilliPerMin);
 
-    int nDistance = AbsInt(nToX - nFromX) + AbsInt(nToY - nFromY); // Manhattan
-    int nDurationMs = (nDistance * 60000) / nSpeedMilliPerMin;
-    if (nDurationMs < 1)
-    {
-        nDurationMs = 1;
-    }
-
-    SetLocalInt(oPartyLeader, "TRAVEL_ACTIVE", TRUE);
-    SetLocalInt(oPartyLeader, "TRAVEL_FROM_CITY", nFromCityId);
-    SetLocalInt(oPartyLeader, "TRAVEL_TO_CITY", nToCityId);
-    SetLocalInt(oPartyLeader, "TRAVEL_START_MS", nNowMs);
-    SetLocalInt(oPartyLeader, "TRAVEL_ARRIVAL_MS", nNowMs + nDurationMs);
-    SetLocalInt(oPartyLeader, "TRAVEL_SEED", nSeed);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE, TRUE);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_FROM_CITY, nFromCityId);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_TO_CITY, nToCityId);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_START_MS, nNowMs);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS, nNowMs + nDurationMs);
+    SetLocalInt(oPartyLeader, KEY_TRAVEL_SEED, nSeed);
     return TRUE;
 }
 
 int ResolveArrival(object oPartyLeader, int nNowMs)
 {
-    if (!GetLocalInt(oPartyLeader, "TRAVEL_ACTIVE"))
+    if (!GetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE))
     {
         return FALSE;
     }
 
-    int nArrivalMs = GetLocalInt(oPartyLeader, "TRAVEL_ARRIVAL_MS");
+    int nArrivalMs = GetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS);
     if (nNowMs < nArrivalMs)
     {
         return FALSE;
     }
 
-    int nToCityId = GetLocalInt(oPartyLeader, "TRAVEL_TO_CITY");
-    SetLocalInt(oPartyLeader, "PARTY_CITY_ID", nToCityId);
-    DeleteLocalInt(oPartyLeader, "TRAVEL_ACTIVE");
+    SetLocalInt(oPartyLeader, KEY_PARTY_CITY_ID, GetLocalInt(oPartyLeader, KEY_TRAVEL_TO_CITY));
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE);
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_FROM_CITY);
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_TO_CITY);
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_START_MS);
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS);
+    DeleteLocalInt(oPartyLeader, KEY_TRAVEL_SEED);
     return TRUE;
 }

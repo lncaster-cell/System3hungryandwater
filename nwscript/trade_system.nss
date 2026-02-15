@@ -1,50 +1,42 @@
 // trade_system.nss
 // Integer-only atomic buy operation.
 
+#include "system_core"
+
 void SetBalance(object oActor, int nAmount)
 {
-    if (nAmount < 0)
-    {
-        nAmount = 0;
-    }
-    SetLocalInt(oActor, "BALANCE", nAmount);
+    SetLocalInt(oActor, KEY_BALANCE, ClampMinInt(nAmount, 0));
 }
 
 int GetBalance(object oActor)
 {
-    return GetLocalInt(oActor, "BALANCE");
+    return GetLocalInt(oActor, KEY_BALANCE);
 }
 
 void SetMerchantListing(object oMerchant, int nItemId, int nBasePrice, int nStock)
 {
-    if (nBasePrice < 1)
+    if (nItemId < 0)
     {
-        nBasePrice = 1;
-    }
-    if (nStock < 0)
-    {
-        nStock = 0;
+        return;
     }
 
-    string sKeyPrice = "LIST_PRICE_" + IntToString(nItemId);
-    string sKeyStock = "LIST_STOCK_" + IntToString(nItemId);
-    SetLocalInt(oMerchant, sKeyPrice, nBasePrice);
-    SetLocalInt(oMerchant, sKeyStock, nStock);
+    SetLocalInt(oMerchant, ListPriceKey(nItemId), ClampMinInt(nBasePrice, 1));
+    SetLocalInt(oMerchant, ListStockKey(nItemId), ClampMinInt(nStock, 0));
 }
 
 // Returns total price, or -1 on validation failure.
 int BuyOneLine(object oPlayer, object oMerchant, int nItemId, int nQty)
 {
-    if (nQty <= 0)
+    if (nItemId < 0 || nQty <= 0)
     {
         return -1;
     }
 
-    string sKeyPrice = "LIST_PRICE_" + IntToString(nItemId);
-    string sKeyStock = "LIST_STOCK_" + IntToString(nItemId);
+    string sPriceKey = ListPriceKey(nItemId);
+    string sStockKey = ListStockKey(nItemId);
 
-    int nPrice = GetLocalInt(oMerchant, sKeyPrice);
-    int nStock = GetLocalInt(oMerchant, sKeyStock);
+    int nPrice = GetLocalInt(oMerchant, sPriceKey);
+    int nStock = GetLocalInt(oMerchant, sStockKey);
     if (nPrice <= 0 || nStock < nQty)
     {
         return -1;
@@ -57,12 +49,12 @@ int BuyOneLine(object oPlayer, object oMerchant, int nItemId, int nQty)
         return -1;
     }
 
-    // Commit (atomic for single line).
+    // Atomic commit for one order line.
     SetBalance(oPlayer, nPlayerBalance - nTotal);
     SetBalance(oMerchant, GetBalance(oMerchant) + nTotal);
-    SetLocalInt(oMerchant, sKeyStock, nStock - nQty);
+    SetLocalInt(oMerchant, sStockKey, nStock - nQty);
 
-    string sKeyInv = "INV_" + IntToString(nItemId);
-    SetLocalInt(oPlayer, sKeyInv, GetLocalInt(oPlayer, sKeyInv) + nQty);
+    string sInventoryKey = InventoryKey(nItemId);
+    SetLocalInt(oPlayer, sInventoryKey, GetLocalInt(oPlayer, sInventoryKey) + nQty);
     return nTotal;
 }

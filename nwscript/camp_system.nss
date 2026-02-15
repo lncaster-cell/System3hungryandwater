@@ -1,33 +1,37 @@
 // camp_system.nss
 // Ultra-light camp mechanics for party members.
 
+#include "system_core"
+
 const int ACTIVITY_NORMAL_MILLI = 1000;
 const int ACTIVITY_CAMP_MILLI   = 550;
 
-void SetPartyCampState(object oPartyLeader, int bInCamp)
+void ApplyPartyActivityMultiplier(object oPartyLeader, int nMultiplier)
 {
-    // 1) Save camp flag on leader object.
-    SetLocalInt(oPartyLeader, "CAMP_STATE", bInCamp);
-
-    // 2) Apply activity multiplier to all party members.
-    // Party members are expected to be linked by local object slots:
-    // PARTY_MEMBER_0..PARTY_MEMBER_(PARTY_SIZE-1)
-    int nPartySize = GetLocalInt(oPartyLeader, "PARTY_SIZE");
-    int nMultiplier = bInCamp ? ACTIVITY_CAMP_MILLI : ACTIVITY_NORMAL_MILLI;
-
+    int nPartySize = GetLocalInt(oPartyLeader, KEY_PARTY_SIZE);
     int i = 0;
+
     while (i < nPartySize)
     {
-        object oMember = GetLocalObject(oPartyLeader, "PARTY_MEMBER_" + IntToString(i));
+        object oMember = GetLocalObject(oPartyLeader, PartyMemberSlotKey(i));
         if (GetIsObjectValid(oMember))
         {
-            SetLocalInt(oMember, "NEED_ACTIVITY_MILLI", nMultiplier);
+            SetLocalInt(oMember, NeedActivityMilliKey(), nMultiplier);
         }
         i = i + 1;
     }
 }
 
+void SetPartyCampState(object oPartyLeader, int bInCamp)
+{
+    int bCamp = bInCamp ? TRUE : FALSE;
+    int nMultiplier = bCamp ? ACTIVITY_CAMP_MILLI : ACTIVITY_NORMAL_MILLI;
+
+    SetLocalInt(oPartyLeader, KEY_CAMP_STATE, bCamp);
+    ApplyPartyActivityMultiplier(oPartyLeader, nMultiplier);
+}
+
 int IsPartyCamped(object oPartyLeader)
 {
-    return GetLocalInt(oPartyLeader, "CAMP_STATE");
+    return GetLocalInt(oPartyLeader, KEY_CAMP_STATE);
 }
