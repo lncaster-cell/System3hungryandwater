@@ -87,6 +87,8 @@ int StartTravel(object oPartyLeader, int nToCityId, int nNowMs, int nSpeedMilliP
     SetLocalInt(oPartyLeader, KEY_TRAVEL_START_MS, nNowMs);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS, nArrivalMs);
     SetLocalInt(oPartyLeader, KEY_TRAVEL_SEED, nSeed);
+    DeleteLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_BUCKET);
+    DeleteLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_MS);
     return TRUE;
 }
 
@@ -110,5 +112,7 @@ int ResolveArrival(object oPartyLeader, int nNowMs)
     DeleteLocalInt(oPartyLeader, KEY_TRAVEL_START_MS);
     DeleteLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS);
     DeleteLocalInt(oPartyLeader, KEY_TRAVEL_SEED);
+    DeleteLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_BUCKET);
+    DeleteLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_MS);
     return TRUE;
 }
