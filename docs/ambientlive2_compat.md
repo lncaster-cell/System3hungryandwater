@@ -20,7 +20,11 @@
    - баланс.
 2. **Мир/карта:** координаты города по `cityId`.
 3. **Параметры торгового профиля города:** `DEMAND/SUPPLY/PROSPERITY/TRAFFIC` (milli-int).
-4. **Торговля:** стандартные и оптовые позиции по `itemId`:
+4. **Законы городов:**
+   - владелец города `CITY_OWNER_*`;
+   - назначенный пакет законов `CITY_LAW_PACKAGE_*` и его ревизия `CITY_LAW_REVISION_*`;
+   - параметры пакета `LAW_PACKAGE_*` (реакция/досмотр/сила стражи, налог, контроль контрабанды).
+5. **Торговля:** стандартные и оптовые позиции по `itemId`:
    - розница: `LIST_PRICE_*`, `LIST_STOCK_*`;
    - опт: `LIST_WHOLESALE_PRICE_*`, `LIST_WHOLESALE_STOCK_TONS_*`, `LIST_WHOLESALE_LOT_TONS_*`.
 
@@ -28,9 +32,10 @@
 1. Источник вызывает `AL2ExportPartySnapshot(...)` и получает новую ревизию.
 2. Источник (опционально) экспортирует нужные города/товары по id:
    - `AL2ExportCity(...)` + `AL2ExportCityTradeParams(...)`;
+   - `AL2ExportCityLawState(...)` + `AL2ExportLawPackage(...)`;
    - `AL2ExportMerchantItem(...)`.
 3. Приёмник проверяет `AL2CanImportFrom(...)`.
-4. Приёмник применяет `AL2ImportPartySnapshot(...)` и импортирует города/товары.
+4. Приёмник применяет `AL2ImportPartySnapshot(...)` и импортирует города/законы/товары.
 
 ## Гарантии
 - Без фоновых тиков: совместимость не ухудшает производительность.

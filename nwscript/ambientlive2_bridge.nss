@@ -145,6 +145,61 @@ void AL2ImportCityTradeParams(object oModule, object oSyncBus, int nCityId)
     SetLocalInt(oModule, CityTrafficMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityTrafficMilliKey(nCityId))));
 }
 
+
+void AL2ExportLawPackage(object oModule, object oSyncBus, int nPackageId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nPackageId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oSyncBus, AL2Key(LawPackageExistsKey(nPackageId)), GetLocalInt(oModule, LawPackageExistsKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageGuardResponseMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageGuardResponseMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageGuardSearchMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageGuardSearchMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageGuardForceMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageGuardForceMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageTradeTaxMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageTradeTaxMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageContrabandMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageContrabandMilliKey(nPackageId)));
+}
+
+void AL2ImportLawPackage(object oModule, object oSyncBus, int nPackageId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nPackageId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oModule, LawPackageExistsKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageExistsKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageGuardResponseMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageGuardResponseMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageGuardSearchMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageGuardSearchMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageGuardForceMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageGuardForceMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageTradeTaxMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageTradeTaxMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageContrabandMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageContrabandMilliKey(nPackageId))));
+}
+
+void AL2ExportCityLawState(object oModule, object oSyncBus, int nCityId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nCityId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oSyncBus, AL2Key(CityOwnerKey(nCityId)), GetLocalInt(oModule, CityOwnerKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CityLawPackageKey(nCityId)), GetLocalInt(oModule, CityLawPackageKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CityLawRevisionKey(nCityId)), GetLocalInt(oModule, CityLawRevisionKey(nCityId)));
+}
+
+void AL2ImportCityLawState(object oModule, object oSyncBus, int nCityId)
+{
+    if (!GetIsObjectValid(oModule) || !GetIsObjectValid(oSyncBus) || nCityId <= 0)
+    {
+        return;
+    }
+
+    SetLocalInt(oModule, CityOwnerKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityOwnerKey(nCityId))));
+    SetLocalInt(oModule, CityLawPackageKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityLawPackageKey(nCityId))));
+    SetLocalInt(oModule, CityLawRevisionKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityLawRevisionKey(nCityId))));
+}
+
 void AL2ExportMerchantItem(object oMerchant, object oSyncBus, int nItemId)
 {
     if (!GetIsObjectValid(oMerchant) || !GetIsObjectValid(oSyncBus) || nItemId < 0)

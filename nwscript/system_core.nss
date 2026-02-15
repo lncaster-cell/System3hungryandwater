@@ -27,6 +27,11 @@ const string KEY_TRADE_GUI_TAB = "TRADE_GUI_TAB";
 const string KEY_TRADE_CITY_LINES = "TRADE_CITY_LINES";
 const string KEY_TRADE_CITY_HEADER = "TRADE_CITY_HEADER";
 const string KEY_RESOURCE_TRADE_MODE = "RESOURCE_TRADE_MODE";
+const string KEY_CITY_GUARD_RESPONSE_MILLI = "CITY_GUARD_RESPONSE_MILLI";
+const string KEY_CITY_GUARD_SEARCH_MILLI = "CITY_GUARD_SEARCH_MILLI";
+const string KEY_CITY_GUARD_FORCE_MILLI = "CITY_GUARD_FORCE_MILLI";
+const string KEY_CITY_TRADE_TAX_MILLI = "CITY_TRADE_TAX_MILLI";
+const string KEY_CITY_CONTRABAND_MILLI = "CITY_CONTRABAND_MILLI";
 
 const int TRADE_STORAGE_PERSONAL = 0;
 const int TRADE_STORAGE_CAMP = 1;
@@ -70,6 +75,51 @@ string CityYKey(int nCityId)
 string CityDemandMilliKey(int nCityId)
 {
     return "CITY_DEMAND_MILLI_" + IntToString(nCityId);
+}
+
+string CityOwnerKey(int nCityId)
+{
+    return "CITY_OWNER_" + IntToString(nCityId);
+}
+
+string CityLawPackageKey(int nCityId)
+{
+    return "CITY_LAW_PACKAGE_" + IntToString(nCityId);
+}
+
+string CityLawRevisionKey(int nCityId)
+{
+    return "CITY_LAW_REVISION_" + IntToString(nCityId);
+}
+
+string LawPackageExistsKey(int nPackageId)
+{
+    return "LAW_PACKAGE_EXISTS_" + IntToString(nPackageId);
+}
+
+string LawPackageGuardResponseMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_GUARD_RESPONSE_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageGuardSearchMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_GUARD_SEARCH_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageGuardForceMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_GUARD_FORCE_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageTradeTaxMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_TRADE_TAX_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageContrabandMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_CONTRABAND_MILLI_" + IntToString(nPackageId);
 }
 
 string CitySupplyMilliKey(int nCityId)
