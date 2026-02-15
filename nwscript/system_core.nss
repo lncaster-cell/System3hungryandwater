@@ -19,6 +19,11 @@ const string KEY_ENCOUNTER_KIND = "ENCOUNTER_KIND";
 const string KEY_ENCOUNTER_STARTS_IN_COMBAT = "ENCOUNTER_STARTS_IN_COMBAT";
 
 const string KEY_BALANCE = "BALANCE";
+const string KEY_TRADE_GUI_LINES = "TRADE_GUI_LINES";
+const string KEY_TRADE_GUI_HEADER = "TRADE_GUI_HEADER";
+
+const int TRADE_STORAGE_PERSONAL = 0;
+const int TRADE_STORAGE_CAMP = 1;
 
 int AbsInt(int nValue)
 {
@@ -63,4 +68,14 @@ string ListStockKey(int nItemId)
 string InventoryKey(int nItemId)
 {
     return "INV_" + IntToString(nItemId);
+}
+
+string CampInventoryKey(int nItemId)
+{
+    return "CAMP_INV_" + IntToString(nItemId);
+}
+
+string TradeGuiLineKey(int nIndex)
+{
+    return "TRADE_GUI_LINE_" + IntToString(nIndex);
 }
