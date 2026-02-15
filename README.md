@@ -8,8 +8,11 @@
 
 ## NWScript-модули
 - `nwscript/camp_system.nss` — состояние лагеря и понижение активности.
+- `src/world_system.py::CampSystem` — персональный лагерь (получение, склад вещей, спутники).
 - `nwscript/travel_system.nss` — маршруты между городами по timestamp-модели.
+- `src/world_system.py::TravelSystem.project_travel` — проекция "дни в пути / минуты ожидания / проверки встреч" с штрафом при отсутствии лагеря (ночёвка в таверне).
 - `nwscript/encounter_system.nss` — детерминированные встречи в окнах времени.
+- `src/world_system.py::EncounterSystem.events_for_checks` — фиксированное число проверок встреч на путешествие (например 10 проверок за 5 дней).
 - `nwscript/trade_system.nss` — integer-only торговля с атомарной покупкой строки заказа.
 
 ## Принципы производительности
