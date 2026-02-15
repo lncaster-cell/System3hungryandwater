@@ -28,6 +28,11 @@ void SetPartyCity(object oPartyLeader, int nCityId)
 
 int ComputeTravelDurationMs(object oModule, int nFromCityId, int nToCityId, int nSpeedMilliPerMin)
 {
+    if (nSpeedMilliPerMin <= 0)
+    {
+        return -1;
+    }
+
     if (!GetLocalInt(oModule, CityExistsKey(nFromCityId)) || !GetLocalInt(oModule, CityExistsKey(nToCityId)))
     {
         return -1;
