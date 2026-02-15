@@ -19,11 +19,11 @@
    - encounter-стейт (`LAST_MS/SEVERITY/ACTOR_TYPE/KIND/STARTS_IN_COMBAT`);
    - баланс.
 2. **Мир/карта:** координаты города по `cityId`.
-3. **Параметры торгового профиля города:** `DEMAND/SUPPLY/PROSPERITY/TRAFFIC` (milli-int).
+3. **Параметры торгового профиля города:** `DEMAND/SUPPLY/PROSPERITY/TRAFFIC/POPULATION` (milli-int).
 4. **Законы городов:**
    - владелец города `CITY_OWNER_*`;
    - назначенный пакет законов `CITY_LAW_PACKAGE_*` и его ревизия `CITY_LAW_REVISION_*`;
-   - параметры пакета `LAW_PACKAGE_*` (реакция/досмотр/сила стражи, налог, контроль контрабанды).
+   - параметры пакета `LAW_PACKAGE_*` (реакция/досмотр/сила стражи, налог, контроль контрабанды, экономические/демографические дельты, расовое давление).
 5. **Торговля:** стандартные и оптовые позиции по `itemId`:
    - розница: `LIST_PRICE_*`, `LIST_STOCK_*`;
    - опт: `LIST_WHOLESALE_PRICE_*`, `LIST_WHOLESALE_STOCK_TONS_*`, `LIST_WHOLESALE_LOT_TONS_*`.

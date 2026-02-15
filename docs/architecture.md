@@ -53,9 +53,11 @@
 
 ### 5) Законы городов (`nwscript/city_law_system.nss`)
 - Для каждого города хранится `owner` и назначенный `law package`.
-- `RegisterLawPackage(...)` задаёт полностью функциональный пакет законов (реакция/досмотр/сила стражи, торговый налог, контроль контрабанды).
+- `RegisterLawPackage(...)` задаёт базовый пакет законов (реакция/досмотр/сила стражи, торговый налог, контроль контрабанды).
+- `RegisterLawPackageImpact(...)` задаёт влияние закона на экономику и демографию города (demand/supply/prosperity/traffic/population) и уровень расового давления.
 - `AssignCityLawPackage(...)` переключает пакет по решению владельца города и поднимает ревизию закона города.
-- `ApplyCityLawContext(...)` копирует активные правовые коэффициенты в контекст NPC/сцены для downstream-логики стражников и других систем.
+- `ApplyCityLawContext(...)` копирует активные правовые коэффициенты и дельты влияния закона в контекст NPC/сцены для downstream-логики стражников и других систем.
+- `ApplyCityLawEconomyImpact(...)` применяет текущие law-дельты к параметрам города и населению в saturating/clamp формате.
 - `ComputeGuardInterventionScoreMilli(...)` даёт единый детерминированный скор вмешательства стражи с учётом активных законов.
 
 ### 6) Межрепозиторная совместимость (`nwscript/ambientlive2_bridge.nss`)
@@ -63,8 +65,8 @@
 - Использует `AL2_SYNC_*` namespace, чтобы не конфликтовать с runtime-ключами.
 - `AL2ExportPartySnapshot/AL2ImportPartySnapshot` синхронизируют состояние партии (город, лагерь, travel, encounters, balance).
 - `AL2ExportCity/AL2ImportCity` обеспечивают двусторонний обмен координатами городов.
-- `AL2ExportCityTradeParams/AL2ImportCityTradeParams` синхронизируют параметры торгового профиля города.
+- `AL2ExportCityTradeParams/AL2ImportCityTradeParams` синхронизируют параметры торгового профиля города, включая население.
 - `AL2ExportCityLawState/AL2ImportCityLawState` синхронизируют владельца, выбранный law-пакет и ревизию законов города.
-- `AL2ExportLawPackage/AL2ImportLawPackage` синхронизируют содержимое law-пакетов (параметры стражи/налогов/контрабанды).
+- `AL2ExportLawPackage/AL2ImportLawPackage` синхронизируют содержимое law-пакетов (параметры стражи/налогов/контрабанды + экономические/демографические дельты и расовое давление).
 - `AL2ExportMerchantItem/AL2ImportMerchantItem` синхронизируют стандартные и оптовые торговые позиции по item-id.
 - Контроль ревизий исключает откат на устаревшее состояние при асинхронном обмене.

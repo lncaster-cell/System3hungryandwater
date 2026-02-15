@@ -32,6 +32,13 @@ const string KEY_CITY_GUARD_SEARCH_MILLI = "CITY_GUARD_SEARCH_MILLI";
 const string KEY_CITY_GUARD_FORCE_MILLI = "CITY_GUARD_FORCE_MILLI";
 const string KEY_CITY_TRADE_TAX_MILLI = "CITY_TRADE_TAX_MILLI";
 const string KEY_CITY_CONTRABAND_MILLI = "CITY_CONTRABAND_MILLI";
+const string KEY_CITY_POPULATION_MILLI = "CITY_POPULATION_MILLI";
+const string KEY_CITY_POPULATION_DELTA_MILLI = "CITY_POPULATION_DELTA_MILLI";
+const string KEY_CITY_DEMAND_DELTA_MILLI = "CITY_DEMAND_DELTA_MILLI";
+const string KEY_CITY_SUPPLY_DELTA_MILLI = "CITY_SUPPLY_DELTA_MILLI";
+const string KEY_CITY_PROSPERITY_DELTA_MILLI = "CITY_PROSPERITY_DELTA_MILLI";
+const string KEY_CITY_TRAFFIC_DELTA_MILLI = "CITY_TRAFFIC_DELTA_MILLI";
+const string KEY_CITY_RACIAL_PRESSURE_MILLI = "CITY_RACIAL_PRESSURE_MILLI";
 
 const int TRADE_STORAGE_PERSONAL = 0;
 const int TRADE_STORAGE_CAMP = 1;
@@ -137,6 +144,36 @@ string LawPackageContrabandMilliKey(int nPackageId)
     return "LAW_PACKAGE_CONTRABAND_MILLI_" + IntToString(nPackageId);
 }
 
+string LawPackageDemandDeltaMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_DEMAND_DELTA_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageSupplyDeltaMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_SUPPLY_DELTA_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageProsperityDeltaMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_PROSPERITY_DELTA_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageTrafficDeltaMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_TRAFFIC_DELTA_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackagePopulationDeltaMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_POPULATION_DELTA_MILLI_" + IntToString(nPackageId);
+}
+
+string LawPackageRacialPressureMilliKey(int nPackageId)
+{
+    return "LAW_PACKAGE_RACIAL_PRESSURE_MILLI_" + IntToString(nPackageId);
+}
+
 string CitySupplyMilliKey(int nCityId)
 {
     return "CITY_SUPPLY_MILLI_" + IntToString(nCityId);
@@ -150,6 +187,11 @@ string CityProsperityMilliKey(int nCityId)
 string CityTrafficMilliKey(int nCityId)
 {
     return "CITY_TRAFFIC_MILLI_" + IntToString(nCityId);
+}
+
+string CityPopulationMilliKey(int nCityId)
+{
+    return "CITY_POPULATION_MILLI_" + IntToString(nCityId);
 }
 
 string PartyMemberSlotKey(int nIndex)
