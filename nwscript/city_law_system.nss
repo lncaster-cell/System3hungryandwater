@@ -37,6 +37,22 @@ void RegisterLawPackage(int nPackageId, int nGuardResponseMilli, int nGuardSearc
     SetLocalInt(oModule, LawPackageContrabandMilliKey(nPackageId), ClampLawMilli(nContrabandMilli));
 }
 
+void RegisterLawPackageImpact(int nPackageId, int nDemandDeltaMilli, int nSupplyDeltaMilli, int nProsperityDeltaMilli, int nTrafficDeltaMilli, int nPopulationDeltaMilli, int nRacialPressureMilli)
+{
+    if (nPackageId <= 0)
+    {
+        return;
+    }
+
+    object oModule = GetModule();
+    SetLocalInt(oModule, LawPackageDemandDeltaMilliKey(nPackageId), nDemandDeltaMilli);
+    SetLocalInt(oModule, LawPackageSupplyDeltaMilliKey(nPackageId), nSupplyDeltaMilli);
+    SetLocalInt(oModule, LawPackageProsperityDeltaMilliKey(nPackageId), nProsperityDeltaMilli);
+    SetLocalInt(oModule, LawPackageTrafficDeltaMilliKey(nPackageId), nTrafficDeltaMilli);
+    SetLocalInt(oModule, LawPackagePopulationDeltaMilliKey(nPackageId), nPopulationDeltaMilli);
+    SetLocalInt(oModule, LawPackageRacialPressureMilliKey(nPackageId), ClampLawMilli(nRacialPressureMilli));
+}
+
 int AssignCityLawPackage(int nCityId, int nOwnerId, int nPackageId)
 {
     if (nCityId <= 0 || nOwnerId <= 0 || nPackageId <= 0)
@@ -107,6 +123,72 @@ int GetCityContrabandMilli(int nCityId)
     return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageContrabandMilliKey(nPackageId));
 }
 
+int GetCityPopulationDeltaMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackagePopulationDeltaMilliKey(nPackageId));
+}
+
+int GetCityDemandDeltaMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageDemandDeltaMilliKey(nPackageId));
+}
+
+int GetCitySupplyDeltaMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageSupplyDeltaMilliKey(nPackageId));
+}
+
+int GetCityProsperityDeltaMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageProsperityDeltaMilliKey(nPackageId));
+}
+
+int GetCityTrafficDeltaMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageTrafficDeltaMilliKey(nPackageId));
+}
+
+int GetCityRacialPressureMilli(int nCityId)
+{
+    int nPackageId = GetCityLawPackageId(nCityId);
+    return nPackageId <= 0 ? 0 : GetLocalInt(GetModule(), LawPackageRacialPressureMilliKey(nPackageId));
+}
+
+void ApplyCityLawEconomyImpact(int nCityId)
+{
+    if (nCityId <= 0)
+    {
+        return;
+    }
+
+    object oModule = GetModule();
+
+    int nDemand = GetLocalInt(oModule, CityDemandMilliKey(nCityId));
+    nDemand = SaturatingAddInt(nDemand, GetCityDemandDeltaMilli(nCityId));
+    SetLocalInt(oModule, CityDemandMilliKey(nCityId), ClampLawMilli(nDemand));
+
+    int nSupply = GetLocalInt(oModule, CitySupplyMilliKey(nCityId));
+    nSupply = SaturatingAddInt(nSupply, GetCitySupplyDeltaMilli(nCityId));
+    SetLocalInt(oModule, CitySupplyMilliKey(nCityId), ClampLawMilli(nSupply));
+
+    int nProsperity = GetLocalInt(oModule, CityProsperityMilliKey(nCityId));
+    nProsperity = SaturatingAddInt(nProsperity, GetCityProsperityDeltaMilli(nCityId));
+    SetLocalInt(oModule, CityProsperityMilliKey(nCityId), ClampLawMilli(nProsperity));
+
+    int nTraffic = GetLocalInt(oModule, CityTrafficMilliKey(nCityId));
+    nTraffic = SaturatingAddInt(nTraffic, GetCityTrafficDeltaMilli(nCityId));
+    SetLocalInt(oModule, CityTrafficMilliKey(nCityId), ClampLawMilli(nTraffic));
+
+    int nPopulation = GetLocalInt(oModule, CityPopulationMilliKey(nCityId));
+    nPopulation = SaturatingAddInt(nPopulation, GetCityPopulationDeltaMilli(nCityId));
+    SetLocalInt(oModule, CityPopulationMilliKey(nCityId), ClampLawMilli(nPopulation));
+}
+
 void ApplyCityLawContext(object oTarget, int nCityId)
 {
     if (!GetIsObjectValid(oTarget) || nCityId <= 0)
@@ -119,6 +201,12 @@ void ApplyCityLawContext(object oTarget, int nCityId)
     SetLocalInt(oTarget, KEY_CITY_GUARD_FORCE_MILLI, GetCityGuardForceMilli(nCityId));
     SetLocalInt(oTarget, KEY_CITY_TRADE_TAX_MILLI, GetCityTradeTaxMilli(nCityId));
     SetLocalInt(oTarget, KEY_CITY_CONTRABAND_MILLI, GetCityContrabandMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_POPULATION_DELTA_MILLI, GetCityPopulationDeltaMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_DEMAND_DELTA_MILLI, GetCityDemandDeltaMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_SUPPLY_DELTA_MILLI, GetCitySupplyDeltaMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_PROSPERITY_DELTA_MILLI, GetCityProsperityDeltaMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_TRAFFIC_DELTA_MILLI, GetCityTrafficDeltaMilli(nCityId));
+    SetLocalInt(oTarget, KEY_CITY_RACIAL_PRESSURE_MILLI, GetCityRacialPressureMilli(nCityId));
 }
 
 int ComputeGuardInterventionScoreMilli(int nCityId, int nThreatMilli)

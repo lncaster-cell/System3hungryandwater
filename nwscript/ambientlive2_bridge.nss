@@ -130,6 +130,7 @@ void AL2ExportCityTradeParams(object oModule, object oSyncBus, int nCityId)
     SetLocalInt(oSyncBus, AL2Key(CitySupplyMilliKey(nCityId)), GetLocalInt(oModule, CitySupplyMilliKey(nCityId)));
     SetLocalInt(oSyncBus, AL2Key(CityProsperityMilliKey(nCityId)), GetLocalInt(oModule, CityProsperityMilliKey(nCityId)));
     SetLocalInt(oSyncBus, AL2Key(CityTrafficMilliKey(nCityId)), GetLocalInt(oModule, CityTrafficMilliKey(nCityId)));
+    SetLocalInt(oSyncBus, AL2Key(CityPopulationMilliKey(nCityId)), GetLocalInt(oModule, CityPopulationMilliKey(nCityId)));
 }
 
 void AL2ImportCityTradeParams(object oModule, object oSyncBus, int nCityId)
@@ -143,6 +144,7 @@ void AL2ImportCityTradeParams(object oModule, object oSyncBus, int nCityId)
     SetLocalInt(oModule, CitySupplyMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CitySupplyMilliKey(nCityId))));
     SetLocalInt(oModule, CityProsperityMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityProsperityMilliKey(nCityId))));
     SetLocalInt(oModule, CityTrafficMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityTrafficMilliKey(nCityId))));
+    SetLocalInt(oModule, CityPopulationMilliKey(nCityId), GetLocalInt(oSyncBus, AL2Key(CityPopulationMilliKey(nCityId))));
 }
 
 
@@ -159,6 +161,12 @@ void AL2ExportLawPackage(object oModule, object oSyncBus, int nPackageId)
     SetLocalInt(oSyncBus, AL2Key(LawPackageGuardForceMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageGuardForceMilliKey(nPackageId)));
     SetLocalInt(oSyncBus, AL2Key(LawPackageTradeTaxMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageTradeTaxMilliKey(nPackageId)));
     SetLocalInt(oSyncBus, AL2Key(LawPackageContrabandMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageContrabandMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageDemandDeltaMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageDemandDeltaMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageSupplyDeltaMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageSupplyDeltaMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageProsperityDeltaMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageProsperityDeltaMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageTrafficDeltaMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageTrafficDeltaMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackagePopulationDeltaMilliKey(nPackageId)), GetLocalInt(oModule, LawPackagePopulationDeltaMilliKey(nPackageId)));
+    SetLocalInt(oSyncBus, AL2Key(LawPackageRacialPressureMilliKey(nPackageId)), GetLocalInt(oModule, LawPackageRacialPressureMilliKey(nPackageId)));
 }
 
 void AL2ImportLawPackage(object oModule, object oSyncBus, int nPackageId)
@@ -174,6 +182,12 @@ void AL2ImportLawPackage(object oModule, object oSyncBus, int nPackageId)
     SetLocalInt(oModule, LawPackageGuardForceMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageGuardForceMilliKey(nPackageId))));
     SetLocalInt(oModule, LawPackageTradeTaxMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageTradeTaxMilliKey(nPackageId))));
     SetLocalInt(oModule, LawPackageContrabandMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageContrabandMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageDemandDeltaMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageDemandDeltaMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageSupplyDeltaMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageSupplyDeltaMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageProsperityDeltaMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageProsperityDeltaMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageTrafficDeltaMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageTrafficDeltaMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackagePopulationDeltaMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackagePopulationDeltaMilliKey(nPackageId))));
+    SetLocalInt(oModule, LawPackageRacialPressureMilliKey(nPackageId), GetLocalInt(oSyncBus, AL2Key(LawPackageRacialPressureMilliKey(nPackageId))));
 }
 
 void AL2ExportCityLawState(object oModule, object oSyncBus, int nCityId)
