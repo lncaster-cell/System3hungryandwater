@@ -1,6 +1,8 @@
 // encounter_system.nss
 // Deterministic encounter checks in fixed windows.
 
+#include "system_core"
+
 const int ENCOUNTER_WINDOW_MS = 30000;
 const int ENCOUNTER_CHANCE_MILLI = 180; // 18.0%
 
@@ -32,39 +34,43 @@ int StartsInCombat(int nActorType)
         || nActorType == ENCOUNTER_ACTOR_HOSTILE_FACTION;
 }
 
+int GetTravelRouteFingerprint(object oPartyLeader)
+{
+    int nFromCity = GetLocalInt(oPartyLeader, KEY_TRAVEL_FROM_CITY);
+    int nToCity = GetLocalInt(oPartyLeader, KEY_TRAVEL_TO_CITY);
+    return (nFromCity * 1000003) + nToCity;
+}
+
 int ShouldTriggerEncounter(object oPartyLeader, int nNowMs)
 {
-    if (!GetLocalInt(oPartyLeader, "TRAVEL_ACTIVE"))
+    if (!GetLocalInt(oPartyLeader, KEY_TRAVEL_ACTIVE))
     {
         return FALSE;
     }
 
-    int nStartMs = GetLocalInt(oPartyLeader, "TRAVEL_START_MS");
-    int nArrivalMs = GetLocalInt(oPartyLeader, "TRAVEL_ARRIVAL_MS");
+    int nStartMs = GetLocalInt(oPartyLeader, KEY_TRAVEL_START_MS);
+    int nArrivalMs = GetLocalInt(oPartyLeader, KEY_TRAVEL_ARRIVAL_MS);
     if (nNowMs < nStartMs || nNowMs >= nArrivalMs)
     {
         return FALSE;
     }
 
-    int nSeed = GetLocalInt(oPartyLeader, "TRAVEL_SEED");
-    int nRouteId = GetLocalInt(oPartyLeader, "TRAVEL_START_MS"); // cheap route surrogate
+    int nSeed = GetLocalInt(oPartyLeader, KEY_TRAVEL_SEED);
+    int nRoute = GetTravelRouteFingerprint(oPartyLeader);
     int nBucket = nNowMs / ENCOUNTER_WINDOW_MS;
+    int nRoll = HashRoll(nSeed, nRoute, nBucket);
 
-    int nRoll = HashRoll(nSeed, nRouteId, nBucket);
-    if (nRoll < ENCOUNTER_CHANCE_MILLI)
+    if (nRoll >= ENCOUNTER_CHANCE_MILLI)
     {
-        // lightweight outputs saved locally for current window
-        SetLocalInt(oPartyLeader, "ENCOUNTER_LAST_MS", nNowMs);
-        SetLocalInt(oPartyLeader, "ENCOUNTER_SEVERITY_MILLI", 200 + (HashRoll(nSeed, nBucket, 777) % 801));
-
-        int nActorType = HashRoll(nSeed, nBucket, 999) % 5;
-        SetLocalInt(oPartyLeader, "ENCOUNTER_ACTOR_TYPE", nActorType);
-        SetLocalInt(oPartyLeader, "ENCOUNTER_KIND", nActorType); // backward-compatible alias
-
-        // 1 means immediate combat; 0 means player can talk/attack choice.
-        SetLocalInt(oPartyLeader, "ENCOUNTER_STARTS_IN_COMBAT", StartsInCombat(nActorType));
-        return TRUE;
+        return FALSE;
     }
 
-    return FALSE;
+    int nActorType = HashRoll(nSeed, nBucket, 999) % 5;
+    SetLocalInt(oPartyLeader, KEY_ENCOUNTER_LAST_MS, nNowMs);
+    SetLocalInt(oPartyLeader, KEY_ENCOUNTER_SEVERITY_MILLI, 200 + (HashRoll(nSeed, nBucket, 777) % 801));
+    SetLocalInt(oPartyLeader, KEY_ENCOUNTER_ACTOR_TYPE, nActorType);
+    SetLocalInt(oPartyLeader, KEY_ENCOUNTER_KIND, nActorType); // Backward-compatible alias.
+    SetLocalInt(oPartyLeader, KEY_ENCOUNTER_STARTS_IN_COMBAT, StartsInCombat(nActorType));
+
+    return TRUE;
 }

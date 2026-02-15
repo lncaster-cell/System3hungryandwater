@@ -7,6 +7,7 @@
 - торговля.
 
 ## NWScript-модули
+- `nwscript/system_core.nss` — единые ключи локальных переменных и общие helper-функции.
 - `nwscript/camp_system.nss` — состояние лагеря и понижение активности.
 - `nwscript/travel_system.nss` — маршруты между городами по timestamp-модели.
 - `nwscript/encounter_system.nss` — детерминированные встречи в окнах времени.
