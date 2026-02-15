@@ -20,11 +20,7 @@ int HashRoll(int nSeed, int nLeft, int nRight)
     x = x * 127412617;
     x = x ^ (x / 65536);
 
-    if (x < 0)
-    {
-        x = -x;
-    }
-    return x % 1000;
+    return AbsInt(x) % 1000;
 }
 
 int StartsInCombat(int nActorType)

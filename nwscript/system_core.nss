@@ -62,6 +62,21 @@ int ClampMinInt(int nValue, int nMin)
     return nValue < nMin ? nMin : nValue;
 }
 
+int SaturatingAddInt(int nLeft, int nRight)
+{
+    if (nRight > 0 && nLeft > (INT_MAX_VALUE - nRight))
+    {
+        return INT_MAX_VALUE;
+    }
+
+    if (nRight < 0 && nLeft < (INT_MIN_VALUE - nRight))
+    {
+        return INT_MIN_VALUE;
+    }
+
+    return nLeft + nRight;
+}
+
 string CityXKey(int nCityId)
 {
     return "CITY_X_" + IntToString(nCityId);
