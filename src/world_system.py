@@ -59,14 +59,33 @@ class EncounterEvent:
     kind: int
 
 
+@dataclass(frozen=True, slots=True)
+class TravelProjection:
+    route_id: int
+    travel_days: int
+    wait_ms: int
+    encounter_checks: int
+    uses_personal_camp: bool
+    rest_scene: str
+
+
 class CampSystem:
     """Camp status with O(1) updates and direct need-engine coupling."""
 
-    __slots__ = ("_hunger_engine", "_camped_party")
+    __slots__ = (
+        "_hunger_engine",
+        "_camped_party",
+        "_personal_camp_owner",
+        "_camp_stash",
+        "_camp_companions",
+    )
 
     def __init__(self, hunger_engine: HungerThirstEngine) -> None:
         self._hunger_engine = hunger_engine
         self._camped_party: MutableMapping[int, bool] = {}
+        self._personal_camp_owner: MutableMapping[int, str] = {}
+        self._camp_stash: MutableMapping[int, MutableMapping[int, int]] = {}
+        self._camp_companions: MutableMapping[int, set[int]] = {}
 
     def set_party_camp_state(
         self,
@@ -82,6 +101,31 @@ class CampSystem:
 
     def is_camped(self, party_id: int) -> bool:
         return self._camped_party.get(party_id, False)
+
+    def acquire_personal_camp(self, player_id: int, source: str) -> None:
+        if not source:
+            raise ValueError("source must be non-empty")
+        self._personal_camp_owner[player_id] = source
+
+    def has_personal_camp(self, player_id: int) -> bool:
+        return player_id in self._personal_camp_owner
+
+    def store_item(self, player_id: int, item_id: int, quantity: int) -> None:
+        if quantity <= 0:
+            raise ValueError("quantity must be positive")
+        stash = self._camp_stash.setdefault(player_id, {})
+        stash[item_id] = stash.get(item_id, 0) + quantity
+
+    def stored_item_qty(self, player_id: int, item_id: int) -> int:
+        return self._camp_stash.get(player_id, {}).get(item_id, 0)
+
+    def assign_companion_to_camp(self, player_id: int, companion_id: int) -> None:
+        companions = self._camp_companions.setdefault(player_id, set())
+        companions.add(companion_id)
+
+    def camp_companions(self, player_id: int) -> Tuple[int, ...]:
+        companions = self._camp_companions.get(player_id, set())
+        return tuple(sorted(companions))
 
 
 class TravelSystem:
@@ -100,14 +144,26 @@ class TravelSystem:
         "_routes",
         "_next_route_id",
         "_default_speed_milli_units_per_min",
+        "_travel_minute_per_day",
+        "_encounter_checks_per_day",
+        "_no_camp_penalty_milli",
     )
 
-    def __init__(self, default_speed_milli_units_per_min: int = 180_000) -> None:
+    def __init__(
+        self,
+        default_speed_milli_units_per_min: int = 180_000,
+        travel_minute_per_day: int = 1,
+        encounter_checks_per_day: int = 2,
+        no_camp_penalty_milli: int = 250,
+    ) -> None:
         self._cities: MutableMapping[int, City] = {}
         self._party_city: MutableMapping[int, int] = {}
         self._routes: MutableMapping[int, TravelRoute] = {}
         self._next_route_id = 1
         self._default_speed_milli_units_per_min = max(1, default_speed_milli_units_per_min)
+        self._travel_minute_per_day = max(1, travel_minute_per_day)
+        self._encounter_checks_per_day = max(1, encounter_checks_per_day)
+        self._no_camp_penalty_milli = max(0, no_camp_penalty_milli)
 
     def register_city(self, city_id: int, x_milli: int, y_milli: int) -> None:
         self._cities[city_id] = City(city_id=city_id, x_milli=x_milli, y_milli=y_milli)
@@ -167,6 +223,26 @@ class TravelSystem:
     def active_route(self, party_id: int) -> Optional[TravelRoute]:
         return self._routes.get(party_id)
 
+    def project_travel(self, route: TravelRoute, has_personal_camp: bool) -> TravelProjection:
+        base_duration = max(1, route.arrival_ms - route.start_ms)
+        effective_duration = base_duration
+        if not has_personal_camp:
+            effective_duration += (base_duration * self._no_camp_penalty_milli) // MILLI
+
+        day_ms = self._travel_minute_per_day * 60_000
+        travel_days = max(1, (effective_duration + day_ms - 1) // day_ms)
+        wait_ms = travel_days * day_ms
+        encounter_checks = travel_days * self._encounter_checks_per_day
+
+        return TravelProjection(
+            route_id=route.route_id,
+            travel_days=travel_days,
+            wait_ms=wait_ms,
+            encounter_checks=encounter_checks,
+            uses_personal_camp=has_personal_camp,
+            rest_scene="camp" if has_personal_camp else "inn",
+        )
+
     def _require_city(self, city_id: int) -> City:
         city = self._cities.get(city_id)
         if city is None:
@@ -212,6 +288,26 @@ class EncounterSystem:
                         event_ms=event_ms,
                         severity_milli=severity,
                         kind=kind,
+                    )
+                )
+        return events
+
+    def events_for_checks(self, route: TravelRoute, checks: int) -> List[EncounterEvent]:
+        if checks <= 0:
+            return []
+        duration = max(1, route.arrival_ms - route.start_ms)
+        step = max(1, duration // checks)
+        events: List[EncounterEvent] = []
+        for idx in range(checks):
+            check_ms = route.start_ms + idx * step
+            roll = self._hash_roll(route.seed ^ 0xDEADBEEF, route.route_id, idx)
+            if roll < self._chance_milli:
+                events.append(
+                    EncounterEvent(
+                        route_id=route.route_id,
+                        event_ms=min(check_ms, route.arrival_ms - 1),
+                        severity_milli=200 + (roll % 801),
+                        kind=self._hash_roll(route.seed ^ 0x123456, route.party_id, idx) % 4,
                     )
                 )
         return events
